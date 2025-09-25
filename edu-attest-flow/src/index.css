@@ -1,0 +1,149 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* NKWATSA AI Design System - Web3 Education Platform */
+
+@layer base {
+  :root {
+    /* Core Brand Colors */
+    --background: 0 0% 100%;
+    --foreground: 215 25% 27%;
+    
+    /* Web3/Crypto Inspired Palette */
+    --primary: 260 100% 65%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 280 100% 75%;
+    
+    --secondary: 215 25% 95%;
+    --secondary-foreground: 215 25% 27%;
+    
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 100%;
+    
+    --warning: 45 93% 47%;
+    --warning-foreground: 0 0% 100%;
+    
+    --error: 0 72% 51%;
+    --error-foreground: 0 0% 100%;
+    
+    /* UI Elements */
+    --card: 0 0% 100%;
+    --card-foreground: 215 25% 27%;
+    --card-border: 215 25% 90%;
+    
+    --muted: 215 25% 95%;
+    --muted-foreground: 215 10% 55%;
+    
+    --accent: 260 20% 95%;
+    --accent-foreground: 215 25% 27%;
+    
+    --border: 215 25% 90%;
+    --input: 215 25% 90%;
+    --ring: 260 100% 65%;
+    
+    /* Interactive States */
+    --hover: 260 100% 70%;
+    --active: 260 100% 60%;
+    
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
+    --gradient-success: linear-gradient(135deg, hsl(var(--success)), hsl(142 71% 55%));
+    --gradient-card: linear-gradient(145deg, hsl(var(--card)), hsl(215 25% 98%));
+    
+    /* Shadows */
+    --shadow-card: 0 4px 12px -4px hsl(215 25% 27% / 0.1);
+    --shadow-elevated: 0 8px 25px -8px hsl(215 25% 27% / 0.15);
+    --shadow-glow: 0 0 20px hsl(var(--primary) / 0.25);
+    
+    /* Typography */
+    --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+    
+    /* Layout */
+    --radius: 0.75rem;
+    --radius-sm: 0.5rem;
+    --radius-lg: 1rem;
+    
+    /* Animations */
+    --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-smooth: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .dark {
+    --background: 215 30% 8%;
+    --foreground: 0 0% 95%;
+    
+    --primary: 260 100% 70%;
+    --primary-foreground: 215 30% 8%;
+    --primary-glow: 280 100% 80%;
+    
+    --secondary: 215 30% 15%;
+    --secondary-foreground: 0 0% 95%;
+    
+    --card: 215 30% 10%;
+    --card-foreground: 0 0% 95%;
+    --card-border: 215 30% 20%;
+    
+    --muted: 215 30% 15%;
+    --muted-foreground: 215 15% 65%;
+    
+    --accent: 215 30% 15%;
+    --accent-foreground: 0 0% 95%;
+    
+    --border: 215 30% 20%;
+    --input: 215 30% 15%;
+    --ring: 260 100% 70%;
+    
+    --hover: 260 100% 75%;
+    --active: 260 100% 65%;
+    
+    --gradient-card: linear-gradient(145deg, hsl(var(--card)), hsl(215 30% 12%));
+    --shadow-card: 0 4px 12px -4px hsl(0 0% 0% / 0.3);
+    --shadow-elevated: 0 8px 25px -8px hsl(0 0% 0% / 0.4);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+  
+  .font-mono {
+    font-family: var(--font-mono);
+  }
+}
+
+@layer components {
+  .gradient-primary {
+    background: var(--gradient-primary);
+  }
+  
+  .gradient-success {
+    background: var(--gradient-success);
+  }
+  
+  .gradient-card {
+    background: var(--gradient-card);
+  }
+  
+  .shadow-card {
+    box-shadow: var(--shadow-card);
+  }
+  
+  .shadow-elevated {
+    box-shadow: var(--shadow-elevated);
+  }
+  
+  .shadow-glow {
+    box-shadow: var(--shadow-glow);
+  }
+  
+  .wallet-address {
+    @apply font-mono text-sm;
+  }
+}
