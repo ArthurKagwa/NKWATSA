@@ -19,7 +19,12 @@ interface Quiz {
   expires_at: string;
 }
 
-export function ReadinessQuiz() {
+interface ReadinessQuizProps {
+  isUnlocked?: boolean;
+  onNavigateToTutor?: () => void;
+}
+
+export function ReadinessQuiz({ isUnlocked = true, onNavigateToTutor }: ReadinessQuizProps) {
   const { user } = useAuth();
   const [quiz, setQuiz] = useState<Quiz | null>(null);
   const [answers, setAnswers] = useState<{ [key: string]: boolean }>({});
@@ -42,6 +47,12 @@ export function ReadinessQuiz() {
   }, [isStarted, isSubmitted, timeLeft]);
 
   const startQuiz = async () => {
+    if (!isUnlocked) {
+      toast.info('Complete the AI tutor warm-up before starting the readiness quiz.');
+      onNavigateToTutor?.();
+      return;
+    }
+
     if (!user) return;
     
     try {
@@ -197,9 +208,19 @@ export function ReadinessQuiz() {
             <p>• Pass with 8/10 correct answers</p>
             <p>• Unlock benefits upon completion</p>
           </div>
-          <Button onClick={startQuiz} className="w-full" disabled={!user}>
-            {!user ? 'Connect Wallet to Start' : 'Start Quiz'}
+          {!isUnlocked && (
+            <div className="rounded-md border border-border/60 bg-muted/40 p-3 text-sm text-muted-foreground">
+              Complete the AI tutor warm-up to unlock the readiness quiz. The tutor will guide you through practice questions.
+            </div>
+          )}
+          <Button onClick={startQuiz} className="w-full" disabled={!user || !isUnlocked}>
+            {!user ? 'Connect Wallet to Start' : isUnlocked ? 'Start Quiz' : 'Quiz Locked'}
           </Button>
+          {!isUnlocked && onNavigateToTutor && (
+            <Button variant="outline" className="w-full" onClick={onNavigateToTutor}>
+              Go to AI Tutor
+            </Button>
+          )}
         </CardContent>
       </Card>
     );

@@ -257,10 +257,11 @@ export const dataStore = {
           passed_at: entry.passed_at,
           version
         },
-        { onConflict: 'wallet,course_id,module_id', returning: 'representation' }
-      );
+        { onConflict: 'wallet,course_id,module_id' }
+      )
+      .select();
     throwIfSupabaseError(error, 'progress.upsert');
-    const returned = Array.isArray(data) && data.length > 0 ? (data[0] as Nullable<ProgressRecord>) : null;
+    const returned = data && Array.isArray(data) && data.length > 0 ? (data[0] as Nullable<ProgressRecord>) : null;
     return {
       version: (returned?.version ?? version) as number,
       status: (returned?.status as string) ?? entry.status
@@ -364,6 +365,94 @@ export const dataStore = {
       .eq('course_id', courseId)
       .eq('module_id', moduleId);
     throwIfSupabaseError(error, 'progress.update');
+  },
+
+  async listAvailableCourses(): Promise<Array<{ course_id: string; title: string; syllabus_url?: string; created_at: string }>> {
+    const { data, error } = await supabaseClient
+      .from('courses')
+      .select('course_id, title, syllabus_url, created_at')
+      .order('created_at', { ascending: false });
+    throwIfSupabaseError(error, 'courses.select');
+    if (!data) return [];
+    return data.map((row) => ({
+      course_id: row.course_id as string,
+      title: row.title as string,
+      syllabus_url: (row.syllabus_url as string) ?? undefined,
+      created_at: row.created_at as string
+    }));
+  },
+
+  async getCourseWithModules(courseId: string): Promise<Maybe<{ course: any; modules: any[] }>> {
+    const { data: course, error: courseError } = await supabaseClient
+      .from('courses')
+      .select('course_id, title, syllabus_url, created_at, created_by')
+      .eq('course_id', courseId)
+      .maybeSingle();
+    throwIfSupabaseError(courseError, 'courses.select');
+    if (!course) return null;
+
+    const { data: modules, error: modulesError } = await supabaseClient
+      .from('modules')
+      .select('module_id, passing_rule_json, is_checkpoint')
+      .eq('course_id', courseId);
+    throwIfSupabaseError(modulesError, 'modules.select');
+
+    return {
+      course: {
+        course_id: course.course_id as string,
+        title: course.title as string,
+        syllabus_url: (course.syllabus_url as string) ?? null,
+        created_at: course.created_at as string,
+        created_by: course.created_by as string
+      },
+      modules: modules ? modules.map((row) => ({
+        module_id: row.module_id as string,
+        passing_rule_json: row.passing_rule_json,
+        is_checkpoint: Boolean(row.is_checkpoint)
+      })) : []
+    };
+  },
+
+  async registerNewUser(wallet: string, displayName?: string): Promise<void> {
+    // First create the user
+    const { error: userError } = await supabaseClient
+      .from('users')
+      .upsert(
+        {
+          wallet,
+          display_name: displayName ?? null
+        },
+        { onConflict: 'wallet' }
+      );
+    throwIfSupabaseError(userError, 'users.upsert');
+
+    // Then assign LEARNER role
+    const { error: roleError } = await supabaseClient
+      .from('user_roles')
+      .upsert(
+        {
+          wallet,
+          role: 'LEARNER'
+        },
+        { onConflict: 'wallet,role' }
+      );
+    throwIfSupabaseError(roleError, 'user_roles.upsert');
+  },
+
+  async enrollInCourse(wallet: string, courseId: string, moduleId: string): Promise<void> {
+    const { error } = await supabaseClient
+      .from('progress')
+      .upsert(
+        {
+          wallet,
+          course_id: courseId,
+          module_id: moduleId,
+          status: 'NOT_STARTED',
+          version: 1
+        },
+        { onConflict: 'wallet,course_id,module_id' }
+      );
+    throwIfSupabaseError(error, 'progress.upsert');
   }
 };
 

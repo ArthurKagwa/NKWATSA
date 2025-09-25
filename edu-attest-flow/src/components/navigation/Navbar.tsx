@@ -3,16 +3,17 @@ import { toast } from 'sonner';
 import { Card } from '@/components/ui/card';
 import { useDisconnect } from 'wagmi';
 import { Badge } from '@/components/ui/badge';
-import { 
-  BookOpen, 
-  Trophy, 
-  Gift, 
-  Settings, 
-  Users, 
+import {
+  BookOpen,
+  Trophy,
+  Gift,
+  Settings,
+  Users,
   BarChart3,
   Database,
   Shield,
-  LogOut 
+  LogOut,
+  Bot
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -28,13 +29,15 @@ export function Navbar({ currentView, onViewChange }: NavbarProps) {
   if (!user) return null;
 
   const learnerItems = [
+    { id: 'tutor', label: 'AI Tutor', icon: Bot },
+    { id: 'courses', label: 'Browse Courses', icon: BookOpen },
     { id: 'quiz', label: 'Start Quiz', icon: BookOpen },
     { id: 'dashboard', label: 'My Achievements', icon: Trophy },
     { id: 'benefits', label: 'Claim Benefits', icon: Gift }
   ];
 
   const tutorItems = [
-    { id: 'courses', label: 'Create Course', icon: BookOpen },
+    { id: 'course-builder', label: 'Create Course', icon: BookOpen },
     { id: 'checkpoints', label: 'Checkpoints', icon: Settings },
     { id: 'analytics', label: 'Analytics', icon: BarChart3 }
   ];
@@ -132,8 +135,6 @@ export function Navbar({ currentView, onViewChange }: NavbarProps) {
     </Card>
   );
 }
-
-
 
 
 

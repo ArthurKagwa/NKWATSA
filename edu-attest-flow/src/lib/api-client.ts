@@ -213,7 +213,7 @@ export class ApiClient {
 
   private async processIssueAttestation(data: any) {
     const { learner_addr, course_id, module_id, score_pct, passed_at } = data;
-    const proofHash = generateAttestationProof(learner_addr, course_id, module_id, score_pct, passed_at);
+    const proofHash = await generateAttestationProof(learner_addr, course_id, module_id, score_pct, passed_at);
 
     return {
       proof_hash: proofHash,
@@ -252,4 +252,3 @@ export class ApiClient {
 }
 
 export const apiClient = new ApiClient();
-

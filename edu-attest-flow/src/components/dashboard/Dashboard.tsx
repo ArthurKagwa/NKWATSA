@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Award, Clock, Target, TrendingUp } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { dataStore } from '@/lib/storage';
+import { sha256Hex } from '@/lib/hash';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -51,11 +52,7 @@ export function Dashboard() {
     setAttempts(attemptSummaries);
 
     if (attemptSummaries.some((attempt) => attempt.passed)) {
-      const crypto = require('crypto');
-      const mockProof = crypto
-        .createHash('sha256')
-        .update(`${wallet}-MATH101-readiness`)
-        .digest('hex');
+      const mockProof = await sha256Hex(`${wallet}-MATH101-readiness`);
       setProofHash(mockProof);
     } else {
       setProofHash('');

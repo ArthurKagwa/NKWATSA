@@ -46,8 +46,14 @@ export class AuthManager {
         throw new Error('Invalid signature');
       }
 
+      // Check if user exists, if not create them
+      let userData = await dataStore.getUserProfile(wallet);
+      if (!userData) {
+        await dataStore.registerNewUser(wallet);
+        userData = await dataStore.getUserProfile(wallet);
+      }
+
       const roles = await dataStore.getUserRoles(wallet);
-      const userData = await dataStore.getUserProfile(wallet);
 
       this.currentUser = {
         wallet,

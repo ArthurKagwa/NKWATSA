@@ -1,13 +1,17 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { WalletConnect } from '@/components/ui/wallet-connect';
 import { Dashboard } from '@/components/dashboard/Dashboard';
 import { ReadinessQuiz } from '@/components/quiz/ReadinessQuiz';
 import { BenefitsGate } from '@/components/benefits/BenefitsGate';
+import { CourseList } from '@/components/courses/CourseList';
+import { StudentRegistration } from '@/components/registration/StudentRegistration';
+import { StudentWelcome } from '@/components/welcome/StudentWelcome';
 import { Navbar } from '@/components/navigation/Navbar';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { GraduationCap, Shield, Zap } from 'lucide-react';
+import { AITutor } from '@/components/tutor/AITutor';
 
 const Index = () => {
   const renderPlaceholder = (title: string, description: string, items?: string[]) => (
@@ -30,6 +34,26 @@ const Index = () => {
 
   const { user } = useAuth();
   const [currentView, setCurrentView] = useState('dashboard');
+  const [showWelcome, setShowWelcome] = useState(false);
+
+  // Check if this is a new user (first time connecting)
+  useEffect(() => {
+    if (user && user.roles.includes('LEARNER')) {
+      const hasSeenWelcome = localStorage.getItem(`nkwatsa-welcome-${user.wallet}`);
+      if (!hasSeenWelcome) {
+        setShowWelcome(true);
+      }
+    }
+  }, [user]);
+
+  const handleWelcomeComplete = () => {
+    if (user) {
+      localStorage.setItem(`nkwatsa-welcome-${user.wallet}`, 'true');
+    }
+    setShowWelcome(false);
+    setCurrentView('courses');
+  };
+  const [tutorCompleted, setTutorCompleted] = useState(false);
 
   if (!user) {
     return (
@@ -111,7 +135,7 @@ const Index = () => {
             <div className="text-center mb-6">
               <h2 className="text-2xl font-semibold mb-2">Ready to Start Learning?</h2>
               <p className="text-muted-foreground">
-                Connect your wallet to access your personal dashboard, take quizzes, and earn verifiable achievements.
+                Connect your wallet to register as a student, browse courses, and start your learning journey.
               </p>
             </div>
             <WalletConnect />
@@ -142,12 +166,37 @@ const Index = () => {
   }
 
   const renderContent = () => {
+    // Show welcome screen for new students
+    if (showWelcome && user && user.roles.includes('LEARNER')) {
+      return <StudentWelcome onGetStarted={handleWelcomeComplete} />;
+    }
+
     switch (currentView) {
+      case 'courses':
+        return <CourseList />;
+      case 'register':
+        return <StudentRegistration onComplete={() => setCurrentView('courses')} />;
+      case 'tutor':
+        return (
+          <AITutor
+            hasCompleted={tutorCompleted}
+            onComplete={() => setTutorCompleted(true)}
+            onLaunchQuiz={() => {
+              setTutorCompleted(true);
+              setCurrentView('quiz');
+            }}
+          />
+        );
       case 'quiz':
-        return <ReadinessQuiz />;
+        return (
+          <ReadinessQuiz
+            isUnlocked={tutorCompleted}
+            onNavigateToTutor={() => setCurrentView('tutor')}
+          />
+        );
       case 'benefits':
         return <BenefitsGate />;
-      case 'courses':
+      case 'course-builder':
         return renderPlaceholder(
           'Course Builder',
           'Design and launch new courses with modules and readiness checkpoints. This workspace will let tutors assemble structured learning paths and publish them to learners.',
@@ -227,6 +276,5 @@ const Index = () => {
 };
 
 export default Index;
-
 
 

@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
+import { sha256Hex } from './hash';
 
 export interface QuizItem {
   id: string;
@@ -78,15 +79,13 @@ export function scoreQuizAttempt(
   };
 }
 
-export function generateAttestationProof(
+export async function generateAttestationProof(
   learnerAddr: string,
   courseId: string,
   moduleId: string,
   scorePct: number,
   passedAt: string
-): string {
-  const crypto = require('crypto');
-  
+): Promise<string> {
   const attestationData = {
     learner: learnerAddr,
     course: courseId,
@@ -97,7 +96,5 @@ export function generateAttestationProof(
   };
   
   const jsonString = JSON.stringify(attestationData, Object.keys(attestationData).sort());
-  const hash = crypto.createHash('sha256').update(jsonString).digest('hex');
-  
-  return hash;
+  return sha256Hex(jsonString);
 }
